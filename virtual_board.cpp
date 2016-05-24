@@ -2,59 +2,20 @@
 #include <vector>
 #include <assert.h>
 
-enum nodeColor { none, black, white };
+#include "virtual_board.h"
 
-class vBoard;
-class vBoardNode {
-//	friend class vBoard;
-	public:
-		vBoardNode() { color = none; }
-		void setColor(nodeColor _color);
-		int getColor() const { return color; }
-		int availability;
-	private:
-		nodeColor color;
-};
-
+// for vBoardNode
 void vBoardNode::setColor(nodeColor _color) {
 	color = _color;
 }
+// END vboardNode
 
-//################################################
-class vBoard {
-	public:
-		vBoard();
-		~vBoard();
-		void init();
-		void print();
-		int setPos(int x, int y, nodeColor state, bool update = true);
-		int setNext(int x, int y);
-		int getNext() const { return next; }
-		void checkAvailability();
-		int isAvailible(int x, int y) const;
-	private:
-		int height;
-		int width;
-		vBoardNode **nodes;
-		vBoardNode **line;
-		vBoardNode **line2;
-		nodeColor next;
-		void validateLine(vBoardNode **_line, int length);
-		void resetAvailability();
-		void updateBoard(int x, int y, int direction);
-		enum stateMachine_state { start, head, body, stop };
-		struct vec{
-			int i;
-			int j;
-		};
-		stateMachine_state stateMachine(vBoardNode *node, stateMachine_state currentState, int nextColor);
-};
 
 /*
  * (0,0) (1,0)
  * (0,1) (1,1)
  */
-vBoard::vBoard() : height(8), width(8) {
+vBoard::vBoard() : height(8), width(8), availableCount(0){
 	nodes = new vBoardNode*[height];
 	int i;
 	for ( i = 0; i < height; ++i ) {
@@ -62,6 +23,8 @@ vBoard::vBoard() : height(8), width(8) {
 	}
 	line = new vBoardNode*[width > height ? width : height];
 	line2 = new vBoardNode*[width > height ? width : height];
+	restCount = height * width;
+	blackCount = whiteCount = 0;
 }
 
 void vBoard::init() {
@@ -118,7 +81,7 @@ void vBoard::print() {
 		}
 		std::cout << std::endl;
 	}
-	std::cout << "----------------" << std::endl;
+	std::cout << "-----------" << this->getAvailableCount() << "-" << this->whiteCount << "-" << this->blackCount << "-" << this->restCount << std::endl;
 }
 
 vBoard::~vBoard() {
@@ -228,10 +191,16 @@ vBoard::stateMachine_state vBoard::stateMachine(vBoardNode *node, vBoard::stateM
 				currentState = stop;
 			}
 			break;
-		default:
-			assert(0);
 	}
 	return currentState;
+}
+
+int vBoard::setNodeAvailable(vBoardNode *node) {
+	if ( node->availability != 1) {
+		node->availability = 1;
+		this->incAvailableCount();
+	}
+	return 0;
 }
 
 void vBoard::validateLine(vBoardNode **_line, int length) {
@@ -241,7 +210,7 @@ void vBoard::validateLine(vBoardNode **_line, int length) {
 		//std::cout << _line[i]->getColor();
 		current = this->stateMachine(_line[i], current, next);
 		if ( current == stop ) {
-			_line[i]->availability = 1;
+			this->setNodeAvailable(_line[i]);
 		}
 		++i;
 	}
@@ -255,6 +224,7 @@ void vBoard::resetAvailability() {
 			nodes[i][j].availability = 0;
 		}
 	}
+	this->clrAvailableCount();
 }
 
 int vBoard::setPos(int x, int y, nodeColor state, bool update) {
@@ -263,6 +233,8 @@ int vBoard::setPos(int x, int y, nodeColor state, bool update) {
 		return -2;
 	}
 	this->nodes[y-1][x-1].setColor(state);
+	state == black ? ++blackCount : ++whiteCount;
+	--restCount;
 	if ( update ) {
 		this->checkAvailability();
 	}
@@ -278,12 +250,12 @@ int vBoard::isAvailible(int x, int y) const{
 
 int vBoard::setNext(int x, int y) {
 	//assert( x>=1 && x<=width && y>=1 && y<=height );
-	 if ( x<1 || x>width || y<1 || y>height ) {
+	if ( x<1 || x>width || y<1 || y>height ) {
 		 throw "out of range";
 	 }
 	// validate
 	if ( ! this->isAvailible(x, y) ) {
-		std::cerr << "this position is not availible!" << std::endl;
+		std::cerr << "this position ( " << x << " " << y << " ) is not availible!" << std::endl;
 		return -2;
 	}
 	// END validate
@@ -300,6 +272,21 @@ int vBoard::setNext(int x, int y) {
 	this->updateBoard(x, y, 0x02);
 	next = ( next == white ? black : white );
 	this->checkAvailability();
+	return 0;
+}
+
+int vBoard::checkNext() {
+	if ( this->restCount == 0 ) {
+		std::cout << "reach end of game" << std::endl;
+		return END_OF_GAME_;
+	}
+	if ( this->availableCount == 0 ) {
+		// change to the opposite player
+		std::cout << "current not available" << std::endl;
+		this->next = ( this->next == black ? white : black );
+		this->checkAvailability();
+		return SWITCH_USER_;
+	}
 	return 0;
 }
 
@@ -340,6 +327,14 @@ void vBoard::updateBoard(int x, int y, int direction) {
 		if ( current == head ) {
 			for ( it = body_to_change.begin(); it != body_to_change.end(); ++it ) {
 				this->nodes[it->i][it->j].setColor(next);
+				if ( next == black ) {
+					++blackCount;
+					--whiteCount;
+				}
+				else {
+					--blackCount;
+					++whiteCount;
+				}
 			}
 			break;
 		}
@@ -348,44 +343,3 @@ void vBoard::updateBoard(int x, int y, int direction) {
 		pos.j = pos.j + dir[1];
 	}
 }
-
-// check
-int main(void) {
-	vBoard board;
-	board.init();
-	board.print();
-	int x, y;
-	board.setNext(3, 4);
-	board.print();
-	board.setNext(3, 3);
-	board.print();
-	board.setNext(3, 2);
-	board.print();
-	board.setNext(6, 4);
-	board.print();
-	while (1) {
-		std::cout << "next: " << board.getNext() << ", input position: " << std::flush;
-		try {
-			std::cin >> x >> y;
-			if ( x == -1 ) break;
-			board.setNext(x, y);
-			board.print();
-		}
-		catch (const char* e) {
-			std::cout << x << " " << y << "\nerror: " << e << std::endl;
-			std::cin.clear();
-			std::cin.ignore(100000,'\n');
-		}
-	}
-	return 0;
-}
-
-/*
- * 3 2
- * 6 4
- * 6 6
- * 3 6
- * 7 3
- * 2 3
- * 3 5
- */
