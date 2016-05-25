@@ -13,10 +13,14 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp\
+        boardview.cpp\
+        virtual_board.cpp\
+        newGameDialog.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h newgamedialog.h boardview.h virtual_board.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    ui/newgamedialog.ui
 
 CONFIG += c++11

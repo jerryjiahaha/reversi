@@ -30,6 +30,11 @@ class vBoard {
 		void checkAvailability();
 		int getAvailableCount() const { return availableCount; }
 		int isAvailible(int x, int y) const;
+		int getHeight() const { return height; }
+		int getWidth() const { return width; }
+		const vBoardNode** getNodes() const {
+			return const_cast<const vBoardNode**>(nodes);
+		}
 	private:
 		int height;
 		int width;

@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>690</width>
+    <height>620</height>
+   </rect>
+  </property>
   <property name="minimumSize">
    <size>
     <width>600</width>
@@ -114,10 +122,17 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1005</width>
+     <width>690</width>
      <height>30</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuNew">
+    <property name="title">
+     <string>&amp;Game</string>
+    </property>
+    <addaction name="actionNew"/>
+   </widget>
+   <addaction name="menuNew"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -128,6 +143,11 @@
    </attribute>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionNew">
+   <property name="text">
+    <string>New</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>

@@ -7,7 +7,7 @@ static void fuck_board(vBoard &board);
 int main(void) {
 	vBoard board;
 	board.init();
-	fuck_board(board);
+	//fuck_board(board);
 	board.print();
 	if ( board.checkNext() == SWITCH_USER_ ) {
 		board.print();
