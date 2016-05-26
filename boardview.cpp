@@ -9,6 +9,7 @@ BoardWidget::BoardWidget(QWidget *parent) : QWidget(parent)
     this->setMouseTracking(true);
     grid_drawed = false;
     nodes = NULL;
+    humanActive = 0;
 }
 
 BoardWidget::~BoardWidget()
@@ -47,7 +48,7 @@ void BoardWidget::paintEvent(QPaintEvent *)
     if ( nodes != NULL ) {
         for ( i = 0; i < this->width; i++ ) {
             for ( j = 0; j < this->height; j++ ) {
-                std::cout << this->nodes[j][i].getColor() << " " << std::flush;
+                //std::cout << this->nodes[j][i].getColor() << " " << std::flush;
                 if ( this->nodes[j][i].getColor() == black ) {
                     painter.setBrush(Qt::black);
                     painter.setPen(Qt::black);
@@ -64,7 +65,7 @@ void BoardWidget::paintEvent(QPaintEvent *)
                     painter.drawEllipse(grid_up_left+QPoint(i*2*grid_half_len, j*2*grid_half_len), grid_half_len, grid_half_len);
                 }
             }
-            std::cout << std::endl;
+            //std::cout << std::endl;
         }
     }
 }
@@ -77,10 +78,10 @@ void BoardWidget::mouseReleaseEvent(QMouseEvent *e)
     //std::cout << grid_up_left.x() << ", " << grid_up_left.y() << std::endl;
     //std::cout << e->pos().x() << ", " <<  e->pos().y() << std::endl;
     //std::cout << rel.x() << ", " <<  rel.y() << std::endl;
-    int x = (rel.x()+grid_half_len) / (2*grid_half_len) + 1;
-    int y = (rel.y()+grid_half_len) / (2*grid_half_len) + 1;
+    int x = (rel.x()+grid_half_len) / (2*grid_half_len);
+    int y = (rel.y()+grid_half_len) / (2*grid_half_len);
     std::cout << "(" << x << ", " << y << ")" << std::endl;
-    if ( x > 0 && y > 0 && x <= this->width && y <= this->height ) {
+    if ( x >= 0 && y >= 0 && x < this->width && y < this->height && humanActive) {
         emit reqPos(x, y);
     }
 }

@@ -1,6 +1,8 @@
 #ifndef VIRTUAL_BOARD_H_
 #define VIRTUAL_BOARD_H_
 
+#include <assert.h>
+
 #define END_OF_GAME_ 0x233
 #define SWITCH_USER_ 0x666
 
@@ -21,7 +23,11 @@ class vBoardNode {
 class vBoard {
 	public:
 		vBoard();
+		vBoard& operator=(const vBoard& origin);
+//		vBoard(const vBoard& origin);
 		~vBoard();
+		static void copyNodes(const vBoard& origin, vBoardNode** dst);
+		static vBoardNode** dupNodes(const vBoard& origin);
 		void init();
 		void reset();
 		void print();
@@ -33,6 +39,10 @@ class vBoard {
 		int isAvailible(int x, int y) const;
 		int getHeight() const { return height; }
 		int getWidth() const { return width; }
+		int getScore() const { return blackCount - whiteCount; }
+		int getRestCount() const { assert(blackCount+whiteCount+restCount==width*height); return restCount; }
+		int endGame() const;
+		int switchPlayer();
 		const vBoardNode** getNodes() const {
 			return const_cast<const vBoardNode**>(nodes);
 		}

@@ -11,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->setGeometry(200, 200, 700, 700);
 
     board_model = new vBoard;
+    ai = new SmartGecko;
 
     board_view = new BoardWidget(this);
     board_view->setWidth(board_model->getWidth());
@@ -21,6 +22,8 @@ MainWindow::MainWindow(QWidget *parent) :
     board_view->setMinimumSize(200, 200);
     board_view->setGeometry( 20, 50, 500, 500);
 
+    connect(this, SIGNAL(nextPlayer()), this, SLOT(handleNextPlayer()));
+
 //    board_view->paint();
     this->on_actionNew_triggered();
 }
@@ -30,6 +33,7 @@ MainWindow::~MainWindow()
     delete ui;
     delete board_view;
     delete board_model;
+    delete ai;
 }
 void MainWindow::on_actionNew_triggered()
 {
@@ -43,22 +47,68 @@ void MainWindow::on_actionNew_triggered()
 void MainWindow::startGame(int res)
 {
     std::cout << "game start! " << res << std::endl;
-    std::cout << newgame->imfirstCheck->isChecked() << std::endl;
+    imfirst = newgame->imfirstCheck->isChecked();
+    std::cout << imfirst << std::endl;
+    // always `black` first
+    if ( imfirst ) {
+        this->playerList[black] = 0;
+        this->playerList[white] = 1;
+        //blackisAi = 0;
+        //whiteisAi = 1;
+    }
+    else {
+        this->playerList[black] = 1;
+        this->playerList[white] = 0;
+        //blackisAi = 1;
+        //whiteisAi = 0;
+    }
     this->board_model->init();
     this->board_view->setNodes(this->board_model->getNodes());
     connect(board_view, SIGNAL(reqPos(int,int)), this, SLOT(handleNextPos(int,int)));
     this->board_view->paint();
-    this->statusBar()->showMessage(QVariant(this->board_model->getNext()).toString());
+    //this->statusBar()->showMessage(QVariant(this->board_model->getNext()).toString());
+    emit nextPlayer();
 }
 
 void MainWindow::handleNextPos(int x, int y)
 {
     std::cout << "handleNextPos" << x << y << std::endl;
+    if ( this->playerList[this->board_model->getNext()] ) {
+        return;
+    }
     if ( this->board_model->setNext(x, y) == 0 ) {
         this->board_view->paint();
     }
-    this->board_model->checkNext();
+    emit nextPlayer();
+}
+
+void MainWindow::handleNextPlayer() {
+    std::cout << "in handleNextPlayer" << std::endl;
+    this->board_view->setHumanDisabled();
+    int state = this->board_model->checkNext();
     this->statusBar()->showMessage(QVariant(this->board_model->getNext()).toString());
+    if ( state == END_OF_GAME_ ) {
+        std::cout << "END_OF_GAME_" << std::endl;
+        return;
+    }
+    if ( state == SWITCH_USER_) {
+        std::cout << "SWITCH_USER_" << std::endl;
+        emit nextPlayer();
+        return;
+    }
+    int nextColor = this->board_model->getNext();
+    int x = 0, y = 0;
+    if ( this->playerList[nextColor] ) {
+        std::cout << "now its turn of AI" << std::endl;
+        this->ai->nextStep(x, y, *(this->board_model));
+        if ( this->board_model->setNext(x, y) == 0 ) {
+            this->board_view->paint();
+            emit nextPlayer();
+        }
+    }
+    else {
+        this->board_view->setHumanActive();
+    }
 }
 
 /*

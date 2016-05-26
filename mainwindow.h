@@ -5,10 +5,13 @@
 #include <QPainter>
 #include <QWidget>
 #include <QObject>
+#include <map>
 
 #include "virtual_board.h"
 #include "boardview.h"
 #include "newgamedialog.h"
+
+#include "ai/SmartGecko.h"
 
 namespace Ui {
 class MainWindow;
@@ -22,14 +25,24 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+signals:
+    void nextPlayer();
+
 private slots:
     void on_actionNew_triggered();
     void startGame(int ret);
-	void handleNextPos(int x, int y);
+    void handleNextPos(int x, int y);
+    void handleNextPlayer();
+    //void updateInfo();
 private:
     Ui::MainWindow *ui;
     BoardWidget *board_view;
     vBoard *board_model;
     newGameDialog *newgame;
+    int imfirst;
+    std::map<int, int> playerList; // Ai:1, human:0
+    SmartGecko *ai;
+    //int whiteisAi;
+    //int blackisAi;
 };
 #endif // MAINWINDOW_H

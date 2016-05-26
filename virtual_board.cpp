@@ -16,6 +16,7 @@ void vBoardNode::setColor(nodeColor _color) {
  * (0,1) (1,1)
  */
 vBoard::vBoard() : height(8), width(8), availableCount(0){
+	std::cout << "main constructor" << std::endl;
 	nodes = new vBoardNode*[height];
 	int i;
 	for ( i = 0; i < height; ++i ) {
@@ -25,6 +26,51 @@ vBoard::vBoard() : height(8), width(8), availableCount(0){
 	line2 = new vBoardNode*[width > height ? width : height];
 	restCount = height * width;
 	blackCount = whiteCount = 0;
+}
+
+vBoard& vBoard::operator=(const vBoard& origin) {
+	if ( &origin == this ) {
+		std::cout << "self-assign" << std::endl;
+		return *this;
+	}
+	std::cout << "assigning..." << std::endl;
+	vBoard::copyNodes(origin, this->nodes);
+	this->blackCount = origin.blackCount;
+	this->whiteCount = origin.whiteCount;
+	this->restCount = origin.restCount;
+	this->availableCount = origin.availableCount;
+	this->height = origin.height;
+	this->width = origin.width;
+	this->next = origin.next;
+	//this->print();
+	return *this;
+}
+
+//vBoard::vBoard(const vBoard& origin) {
+//	std::cout << "copy constructor" << std::endl;
+//}
+
+void vBoard::copyNodes(const vBoard& origin, vBoardNode** dst) {
+	int i, j;
+	const vBoardNode** src = origin.getNodes();
+	for ( i = 0; i < origin.getHeight(); ++i ) {
+		for ( j = 0; j < origin.getWidth(); ++j ) {
+			dst[i][j] = src[i][j];
+		}
+	}
+}
+
+vBoardNode** vBoard::dupNodes(const vBoard &origin) {
+	vBoardNode** nodes;
+	int height = origin.getHeight();
+	int width = origin.getWidth();
+	nodes = new vBoardNode*[height];
+	int i;
+	for ( i = 0; i < height; ++i ) {
+		nodes[i] = new vBoardNode[width];
+	}
+	vBoard::copyNodes(origin, nodes);
+	return nodes;
 }
 
 void vBoard::init() {
@@ -37,10 +83,13 @@ void vBoard::init() {
 	this->reset();
 	int middle_pos_x = width/2;
 	int middle_pos_y = height/2;
+	blackCount = 0;
+	whiteCount = 0;
+	restCount = height * width;
+	this->setPos(middle_pos_x-1, middle_pos_y-1, white, false);
+	this->setPos(middle_pos_x, middle_pos_y-1, black, false);
 	this->setPos(middle_pos_x, middle_pos_y, white, false);
-	this->setPos(middle_pos_x+1, middle_pos_y, black, false);
-	this->setPos(middle_pos_x+1, middle_pos_y+1, white, false);
-	this->setPos(middle_pos_x, middle_pos_y+1, black, false);
+	this->setPos(middle_pos_x-1, middle_pos_y, black, false);
 	this->next = black;
 	this->checkAvailability();
 }
@@ -64,11 +113,11 @@ void vBoard::print() {
 		std::cout << "\033[1;32m" << "x" << "\033[0m";
 	}
 	for ( j = 0; j < width; ++j ) {
-		std::cout << j+1 << " ";
+		std::cout << j << " ";
 	}
 	std::cout << "\n";
 	for ( i = 0; i < height; ++i ) {
-		std::cout << i+1;
+		std::cout << i;
 		for ( j = 0; j < width; ++j ) {
 			switch (this->nodes[i][j].getColor()) {
 				case none:
@@ -97,6 +146,7 @@ void vBoard::print() {
 
 vBoard::~vBoard() {
 	int i;
+	std::cout << "free board..." << std::endl;
 	for ( i = 0; i < height; ++i ) {
 		delete[] nodes[i];
 	}
@@ -239,11 +289,11 @@ void vBoard::resetAvailability() {
 }
 
 int vBoard::setPos(int x, int y, nodeColor state, bool update) {
-	if ( this->nodes[y-1][x-1].getColor() != none ) {
+	if ( this->nodes[y][x].getColor() != none ) {
 		std::cerr << "already have one" << std::endl;
 		return -2;
 	}
-	this->nodes[y-1][x-1].setColor(state);
+	this->nodes[y][x].setColor(state);
 	state == black ? ++blackCount : ++whiteCount;
 	--restCount;
 	if ( update ) {
@@ -253,15 +303,16 @@ int vBoard::setPos(int x, int y, nodeColor state, bool update) {
 }
 
 int vBoard::isAvailible(int x, int y) const{
-	if ( this->nodes[y-1][x-1].availability ) {
+	if ( this->nodes[y][x].availability ) {
 		return 1;
 	}
 	return 0;
 }
 
 int vBoard::setNext(int x, int y) {
+	std::cout << "set_next: " << x << ", " << y << std::endl;
 	//assert( x>=1 && x<=width && y>=1 && y<=height );
-	if ( x<1 || x>width || y<1 || y>height ) {
+	if ( x<0 || x>=width || y<0 || y>=height ) {
 		 throw "out of range";
 	 }
 	// validate
@@ -286,16 +337,30 @@ int vBoard::setNext(int x, int y) {
 	return 0;
 }
 
+int vBoard::switchPlayer() {
+	this->next = ( this->next == black ? white : black );
+	this->checkAvailability();
+	return this->next;
+}
+
+int vBoard::endGame() const {
+	if ( this->restCount == 0 || this->whiteCount == 0 || this->blackCount == 0 ) {
+		return 1;
+	}
+	return 0;
+}
+
 int vBoard::checkNext() {
-	if ( this->restCount == 0 ) {
+	if ( this->endGame() ) {
 		std::cout << "reach end of game" << std::endl;
 		return END_OF_GAME_;
 	}
 	if ( this->availableCount == 0 ) {
 		// change to the opposite player
 		std::cout << "current not available" << std::endl;
-		this->next = ( this->next == black ? white : black );
-		this->checkAvailability();
+		//this->next = ( this->next == black ? white : black );
+		//this->checkAvailability();
+		this->switchPlayer();
 		return SWITCH_USER_;
 	}
 	return 0;
@@ -330,8 +395,8 @@ void vBoard::updateBoard(int x, int y, int direction) {
 	std::vector<struct vec>::iterator it;
 	stateMachine_state current = head;
 	struct vec pos;
-	pos.i = y-1+dir[0];
-	pos.j = x-1+dir[1];
+	pos.i = y + dir[0];
+	pos.j = x + dir[1];
 	for ( counter = 0; pos.i < height && pos.i >= 0 && pos.j < width && pos.j >= 0; counter++ ) {
 		current = this->stateMachine(&this->nodes[pos.i][pos.j], current, next);
 		if ( current == start || current == stop) break;

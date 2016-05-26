@@ -19,9 +19,12 @@ SOURCES += main.cpp\
         newGameDialog.cpp\
         ai/SmartGecko.cpp
 
-HEADERS  += mainwindow.h newgamedialog.h boardview.h virtual_board.h ai/reversi_ai.h
+HEADERS += mainwindow.h boardview.h virtual_board.h\
+        newgamedialog.h\
+        ai/reversi_ai.h\
+        ai/SmartGecko.h
 
-FORMS    += mainwindow.ui \
-    ui/newgamedialog.ui
+FORMS   += mainwindow.ui \
+        ui/newgamedialog.ui
 
-CONFIG += c++11
+CONFIG  += c++11
