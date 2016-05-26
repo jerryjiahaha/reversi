@@ -59,7 +59,7 @@ void BoardWidget::paintEvent(QPaintEvent *)
                     painter.drawEllipse(grid_up_left+QPoint(i*2*grid_half_len, j*2*grid_half_len), grid_half_len, grid_half_len);
                 }
                 else if ( this->nodes[j][i].availability == 1 ) {
-                    painter.setPen(Qt::cyan);
+                    painter.setPen(Qt::blue);
                     painter.setBrush(Qt::NoBrush);
                     painter.drawEllipse(grid_up_left+QPoint(i*2*grid_half_len, j*2*grid_half_len), grid_half_len, grid_half_len);
                 }

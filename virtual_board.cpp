@@ -34,6 +34,7 @@ void vBoard::init() {
 	 * ...<white><black>...
 	 * ....................
 	 */
+	this->reset();
 	int middle_pos_x = width/2;
 	int middle_pos_y = height/2;
 	this->setPos(middle_pos_x, middle_pos_y, white, false);
@@ -42,6 +43,16 @@ void vBoard::init() {
 	this->setPos(middle_pos_x, middle_pos_y+1, black, false);
 	this->next = black;
 	this->checkAvailability();
+}
+
+void vBoard::reset() {
+	int i, j;
+	for ( i = 0; i < height; ++i ) {
+		for ( j = 0; j < width; ++j ) {
+			nodes[i][j].setColor(none);
+			nodes[i][j].availability = 0;
+		}
+	}
 }
 
 void vBoard::print() {

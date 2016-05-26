@@ -23,6 +23,7 @@ class vBoard {
 		vBoard();
 		~vBoard();
 		void init();
+		void reset();
 		void print();
 		int setNext(int x, int y);
 		int checkNext();

@@ -48,6 +48,7 @@ void MainWindow::startGame(int res)
     this->board_view->setNodes(this->board_model->getNodes());
     connect(board_view, SIGNAL(reqPos(int,int)), this, SLOT(handleNextPos(int,int)));
     this->board_view->paint();
+    this->statusBar()->showMessage(QVariant(this->board_model->getNext()).toString());
 }
 
 void MainWindow::handleNextPos(int x, int y)
@@ -56,6 +57,8 @@ void MainWindow::handleNextPos(int x, int y)
     if ( this->board_model->setNext(x, y) == 0 ) {
         this->board_view->paint();
     }
+    this->board_model->checkNext();
+    this->statusBar()->showMessage(QVariant(this->board_model->getNext()).toString());
 }
 
 /*
