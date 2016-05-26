@@ -65,10 +65,12 @@ SmartGecko::~SmartGecko() {
 int SmartGecko::_Eval(vBoard *board) {
 	int movesMe, movesOther;
 	int score;
-	int endGame = board->endGame();
-	if ( endGame ) {
+	movesMe = board->getAvailableCount();
+	board->switchPlayer();
+	movesOther = board->getAvailableCount();
+	if ( movesMe == movesOther && movesMe == 0 ) { // end of game
 		score = board->getScore();
-		score = ( myColor == black ? -score : score );
+		score = ( otherColor == black ? score : -score );
 		if ( score == 0 ) {
 			return 0;
 		}
@@ -77,10 +79,7 @@ int SmartGecko::_Eval(vBoard *board) {
 		}
 		return score - WINNING_BONUS; // XXX
 	}
-	movesMe = board->getAvailableCount();
-	board->switchPlayer();
-	movesOther = board->getAvailableCount();
-	score = VALUE_OF_A_MOVE_POSSIBILITY * ( movesMe - movesOther );
+	score = VALUE_OF_A_MOVE_POSSIBILITY * ( movesOther - movesMe );
 	score -= _valuePieces(board, myColor);
 	score += _valuePieces(board, otherColor);
 	return score;
@@ -109,7 +108,7 @@ int SmartGecko::_Descend(int depth, int alpha, int beta, int firstMove) {
 		return _Eval(pBoard);
 	}
 	//moves = _CalcValidMoves(pBoard);
-	if ( pBoard->endGame() ){
+	if ( pBoard->checkNext() == END_OF_GAME_ ) {
 		return _Eval(pBoard);
 	}
 	//if (moves == 0) {
@@ -133,16 +132,17 @@ int SmartGecko::_Descend(int depth, int alpha, int beta, int firstMove) {
 		//std::cout << i << ", " << x << ", " << y << std::endl;
 		//if (pBoard->aMoves[x][y]) 
 		if (pBoard->isAvailible(x, y)) {
-			std::cout << "depth: " << depth << std::endl;
-			pBoard->print();
+			//std::cout << "depth: " << depth << std::endl;
+			//pBoard->print();
 			*nextBoard = *pBoard;
-			nextBoard->print();
+			//nextBoard->print();
 			//_MakeMove(nextBoard, x, y);
-			std::cout << "in _Descend, test " << x << ", " << y << std::endl;
+			//std::cout << "in _Descend, test " << x << ", " << y << std::endl;
 			nextBoard->setNext(x, y);
 			//nextBoard->ActPlayer = 3 - pBoard->ActPlayer;
 			/* Recursively evaluate the board resulting from this move. */
 			alt = _Descend(depth - 1, alpha, beta, 0);
+			//std::cout << "depth: " << depth << ", alt: " << alt << ", alpha: " << alpha << ", beta: " << beta << std::endl;
 			if (maximize) {
 				if (alt > alpha) {
 					alpha = alt;
@@ -293,6 +293,7 @@ char SmartGecko::_PlayerAI_SmartGecko() {
 //	}
 	depth = DEPTH;
 	if (freeTiles <= END_GAME_DEPTH) {
+		//std::cout << "freeTiles: " << freeTiles << std::endl;
 		/* In the end game, we expand the search depth. */
 		depth = freeTiles;
 	}
@@ -321,8 +322,8 @@ int SmartGecko::nextStep(int& x, int& y, const vBoard &_board) {
 }
 
 int SmartGecko::nextStep(int& x, int& y) {
-	std::cout << "in AI nextStep" << std::endl;
-	_aBoardStack.top()->print();
+	//std::cout << "in AI nextStep" << std::endl;
+	//_aBoardStack.top()->print();
 	myColor = _aBoardStack.top()->getNext();
 	otherColor = ( myColor == black ? white : black );
 	int DoMove = _PlayerAI_SmartGecko();

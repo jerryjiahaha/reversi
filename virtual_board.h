@@ -32,7 +32,7 @@ class vBoard {
 		void reset();
 		void print();
 		int setNext(int x, int y);
-		int checkNext();
+		int checkNext(bool change = true);
 		int getNext() const { return next; }
 		void checkAvailability();
 		int getAvailableCount() const { return availableCount; }
@@ -40,8 +40,9 @@ class vBoard {
 		int getHeight() const { return height; }
 		int getWidth() const { return width; }
 		int getScore() const { return blackCount - whiteCount; }
+		int getBlack() const { return blackCount; }
+		int getWhite() const { return whiteCount; }
 		int getRestCount() const { assert(blackCount+whiteCount+restCount==width*height); return restCount; }
-		int endGame() const;
 		int switchPlayer();
 		const vBoardNode** getNodes() const {
 			return const_cast<const vBoardNode**>(nodes);
@@ -70,6 +71,7 @@ class vBoard {
 			int j;
 		};
 		stateMachine_state stateMachine(vBoardNode *node, stateMachine_state currentState, int nextColor);
+		int endCheck() const;
 };
 
 

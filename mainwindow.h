@@ -5,6 +5,8 @@
 #include <QPainter>
 #include <QWidget>
 #include <QObject>
+#include <QMessageBox>
+//#include <QThread>
 #include <map>
 
 #include "virtual_board.h"
@@ -27,12 +29,14 @@ public:
 
 signals:
     void nextPlayer();
+    void endOfGame();
 
 private slots:
     void on_actionNew_triggered();
     void startGame(int ret);
     void handleNextPos(int x, int y);
     void handleNextPlayer();
+    void handleEndOfGame();
     //void updateInfo();
 private:
     Ui::MainWindow *ui;
@@ -41,6 +45,7 @@ private:
     newGameDialog *newgame;
     int imfirst;
     std::map<int, int> playerList; // Ai:1, human:0
+    std::map<int, QString> playerNames;
     SmartGecko *ai;
     //int whiteisAi;
     //int blackisAi;

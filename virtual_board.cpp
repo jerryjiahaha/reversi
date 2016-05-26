@@ -16,7 +16,7 @@ void vBoardNode::setColor(nodeColor _color) {
  * (0,1) (1,1)
  */
 vBoard::vBoard() : height(8), width(8), availableCount(0){
-	std::cout << "main constructor" << std::endl;
+	//std::cout << "main constructor" << std::endl;
 	nodes = new vBoardNode*[height];
 	int i;
 	for ( i = 0; i < height; ++i ) {
@@ -33,7 +33,7 @@ vBoard& vBoard::operator=(const vBoard& origin) {
 		std::cout << "self-assign" << std::endl;
 		return *this;
 	}
-	std::cout << "assigning..." << std::endl;
+	//std::cout << "assigning..." << std::endl;
 	vBoard::copyNodes(origin, this->nodes);
 	this->blackCount = origin.blackCount;
 	this->whiteCount = origin.whiteCount;
@@ -146,7 +146,7 @@ void vBoard::print() {
 
 vBoard::~vBoard() {
 	int i;
-	std::cout << "free board..." << std::endl;
+	//std::cout << "free board..." << std::endl;
 	for ( i = 0; i < height; ++i ) {
 		delete[] nodes[i];
 	}
@@ -310,7 +310,7 @@ int vBoard::isAvailible(int x, int y) const{
 }
 
 int vBoard::setNext(int x, int y) {
-	std::cout << "set_next: " << x << ", " << y << std::endl;
+	//std::cout << "set_next: " << x << ", " << y << std::endl;
 	//assert( x>=1 && x<=width && y>=1 && y<=height );
 	if ( x<0 || x>=width || y<0 || y>=height ) {
 		 throw "out of range";
@@ -343,15 +343,15 @@ int vBoard::switchPlayer() {
 	return this->next;
 }
 
-int vBoard::endGame() const {
+int vBoard::endCheck() const {
 	if ( this->restCount == 0 || this->whiteCount == 0 || this->blackCount == 0 ) {
 		return 1;
 	}
 	return 0;
 }
 
-int vBoard::checkNext() {
-	if ( this->endGame() ) {
+int vBoard::checkNext(bool change) {
+	if ( this->endCheck() ) {
 		std::cout << "reach end of game" << std::endl;
 		return END_OF_GAME_;
 	}
@@ -361,6 +361,13 @@ int vBoard::checkNext() {
 		//this->next = ( this->next == black ? white : black );
 		//this->checkAvailability();
 		this->switchPlayer();
+		if ( this->availableCount == 0 ) {
+			std::cout << "reach end of game" << std::endl;
+			return END_OF_GAME_;
+		}
+		if ( !change ) {
+			this->switchPlayer();
+		}
 		return SWITCH_USER_;
 	}
 	return 0;
