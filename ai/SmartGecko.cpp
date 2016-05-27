@@ -34,8 +34,8 @@ const int SmartGecko::_aaValues[8][8] = {
 };
 
 SmartGecko::SmartGecko() : ReversiAI(), \
-		DEPTH(4), \
-		END_GAME_DEPTH(9), \
+		DEPTH(6), \
+		END_GAME_DEPTH(12), \
 		NOLIMIT(1000000), \
 		WINNING_BONUS(100000), \
 		VALUE_OF_A_MOVE_POSSIBILITY(15), \

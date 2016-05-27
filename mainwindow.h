@@ -7,6 +7,7 @@
 #include <QObject>
 #include <QMessageBox>
 //#include <QThread>
+#include <QDesktopWidget>
 #include <map>
 
 #include "virtual_board.h"

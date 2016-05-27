@@ -28,3 +28,6 @@ FORMS   += mainwindow.ui \
         ui/newgamedialog.ui
 
 CONFIG  += c++11
+
+RESOURCES += \
+    resource/res.qrc

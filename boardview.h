@@ -3,7 +3,9 @@
 
 #include <QWidget>
 #include <QPainter>
-#include <QPoint>
+//#include <QPoint>
+#include <QPointF>
+#include <QMouseEvent>
 
 #include "virtual_board.h"
 
@@ -29,7 +31,7 @@ protected:
 private:
     int width;
     int height;
-    QPoint grid_up_left;
+    QPointF grid_up_left;
     int grid_half_len;
     bool grid_drawed;
     const vBoardNode **nodes;

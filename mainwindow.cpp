@@ -8,7 +8,24 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    this->setGeometry(200, 200, 700, 700);
+    //this->setGeometry(200, 200, 700, 700);
+    QDesktopWidget wid;
+
+    // auto resize, centering
+    int screen_width = wid.frameGeometry().width();
+    int screen_height = wid.frameGeometry().height();
+    int width = this->width();
+    int height = this->height();
+
+    if ( width > screen_width ) {
+        this->setMaximumWidth(screen_width);
+        width = screen_width;
+    }
+    if ( height > screen_height ) {
+        this->setMaximumWidth(screen_height);
+        height = screen_height;
+    }
+    this->setGeometry(screen_width/2-width/2, screen_height/2-height/2, width, height);
 
     board_model = new vBoard;
     ai = new SmartGecko;
@@ -16,7 +33,6 @@ MainWindow::MainWindow(QWidget *parent) :
     board_view = new BoardWidget(this);
     board_view->setWidth(board_model->getWidth());
     board_view->setHeight(board_model->getHeight());
-
     board_view->setBackgroundRole(QPalette::Text);
     board_view->setAutoFillBackground(true);
     board_view->setMinimumSize(200, 200);

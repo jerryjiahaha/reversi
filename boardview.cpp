@@ -1,7 +1,5 @@
 #include "boardview.h"
 #include <iostream>
-#include <QMouseEvent>
-#include <QPoint>
 
 BoardWidget::BoardWidget(QWidget *parent) : QWidget(parent)
 {
@@ -28,15 +26,21 @@ void BoardWidget::paintEvent(QPaintEvent *)
 {
     std::cout << "in paintevent: " << grid_drawed << std::endl;
 
+
+    QWidget *parent = dynamic_cast<QWidget*>(this->parent());
+    std::cout << parent->geometry().height() << std::endl;
+    std::cout << parent->geometry().width() << std::endl;
+
     grid_up_left.setX(40);
     grid_up_left.setY(40);
     grid_half_len = 30;
 
     QPainter painter(this);
+    painter.setRenderHint(QPainter::Antialiasing, true);
     //    painter.drawRect(0, 0, 400, 400);
-    QPoint q;
-    QPoint vx(2*grid_half_len, 0);
-    QPoint vy(0, 2*grid_half_len);
+    QPointF q;
+    QPointF vx(2*grid_half_len, 0);
+    QPointF vy(0, 2*grid_half_len);
     int i, j;
     for ( i = 0; i < this->width; i++ ) {
         q = grid_up_left + i * vx;
@@ -53,17 +57,17 @@ void BoardWidget::paintEvent(QPaintEvent *)
                 if ( this->nodes[j][i].getColor() == black ) {
                     painter.setBrush(Qt::black);
                     painter.setPen(Qt::black);
-                    painter.drawEllipse(grid_up_left+QPoint(i*2*grid_half_len, j*2*grid_half_len), grid_half_len, grid_half_len);
+                    painter.drawEllipse(grid_up_left+QPointF(i*2*grid_half_len, j*2*grid_half_len), grid_half_len*0.9, grid_half_len*0.9);
                 }
                 else if ( this->nodes[j][i].getColor() == white ) {
                     painter.setBrush(Qt::white);
                     painter.setPen(Qt::white);
-                    painter.drawEllipse(grid_up_left+QPoint(i*2*grid_half_len, j*2*grid_half_len), grid_half_len, grid_half_len);
+                    painter.drawEllipse(grid_up_left+QPointF(i*2*grid_half_len, j*2*grid_half_len), grid_half_len*0.9, grid_half_len*0.9);
                 }
                 else if ( this->nodes[j][i].availability == 1 ) {
                     painter.setPen(Qt::blue);
                     painter.setBrush(Qt::NoBrush);
-                    painter.drawEllipse(grid_up_left+QPoint(i*2*grid_half_len, j*2*grid_half_len), grid_half_len, grid_half_len);
+                    painter.drawEllipse(grid_up_left+QPointF(i*2*grid_half_len, j*2*grid_half_len), grid_half_len*0.9, grid_half_len*0.9);
                 }
             }
             //std::cout << std::endl;
@@ -75,7 +79,7 @@ void BoardWidget::mouseReleaseEvent(QMouseEvent *e)
 {
     std::cout << "mouse release" << std::endl;
     //QPoint init(grid_half_len, grid_half_len);
-    QPoint rel =  e->pos() - grid_up_left;// + init;
+    QPointF rel =  e->pos() - grid_up_left;// + init;
     //std::cout << grid_up_left.x() << ", " << grid_up_left.y() << std::endl;
     //std::cout << e->pos().x() << ", " <<  e->pos().y() << std::endl;
     //std::cout << rel.x() << ", " <<  rel.y() << std::endl;
