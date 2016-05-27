@@ -268,15 +268,16 @@ int SmartGecko::_valuePieces(const vBoard *board, int playerColor) {
  */ 
 //char SmartGecko::_PlayerAI_SmartGecko(const vBoard * pBoard, int * px, int * py) 
 char SmartGecko::_PlayerAI_SmartGecko() {
-	int x, y, depth;
+	//int x, y;
+	int depth;
 	int freeTiles = _aBoardStack.top()->getRestCount();
 
 	/* Initialize the safe board to true to get the edges right */
-	for (y = 0; y < 10; y++) {
-		for (x = 0; x < 10; x++) {
-			_aaSafe[x][y] = 1;
-		}
-	}
+	//for (y = 0; y < 10; y++) {
+	//	for (x = 0; x < 10; x++) {
+	//		_aaSafe[x][y] = 1;
+	//	}
+	//}
 	//*px = -1;
 	//*py = -1;
 	//_px = px;
