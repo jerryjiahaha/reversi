@@ -26,6 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this, SIGNAL(endOfGame()), this, SLOT(handleEndOfGame()));
 
 //    board_view->paint();
+    newgame = NULL;
     this->on_actionNew_triggered();
 }
 
@@ -47,6 +48,9 @@ void MainWindow::on_actionNew_triggered()
 
 void MainWindow::startGame(int res)
 {
+    if ( !res ) {
+        return;
+    }
     std::cout << "game start! " << res << std::endl;
     imfirst = newgame->imfirstCheck->isChecked();
     std::cout << imfirst << std::endl;
@@ -69,7 +73,7 @@ void MainWindow::startGame(int res)
     }
     this->board_model->init();
     this->board_view->setNodes(this->board_model->getNodes());
-    connect(board_view, SIGNAL(reqPos(int,int)), this, SLOT(handleNextPos(int,int)));
+    connect(board_view, SIGNAL(reqPos(int,int)), this, SLOT(handleNextPos(int,int)), Qt::UniqueConnection);
     this->board_view->paint();
     //this->statusBar()->showMessage(QVariant(this->board_model->getNext()).toString());
     emit nextPlayer();

@@ -14,6 +14,7 @@ BoardWidget::BoardWidget(QWidget *parent) : QWidget(parent)
 
 BoardWidget::~BoardWidget()
 {
+    std::cout << "BoardWidget deleted" << std::endl;
 }
 
 void BoardWidget::paint()
